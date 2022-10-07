@@ -1,33 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
 import './App.css'
+import {TodoList} from "./components/TodoList"
+import { Todo } from './model/Todo'
+import { AddTodo } from './components/AddTodo'
+import { useEffect, useState } from 'react'
+import { listTodos } from './logics/listTodos'
+import { addTodo } from './logics/addTodo'
+import { changeTodoCompletion } from './logics/changeTodoCompletion'
+import { deleteTodo } from './logics/deleteTodo'
+
+const MAX_TODO_COUNT = 10;
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const [completedTodos, setCompletedTodos] = useState<Todo[]>([])
+  const [yetCompletedTodos, setYetCompletedTodos] = useState<Todo[]>([])
+  const updateTodoList = () => {
+    const s = listTodos().then((todos1) => {
+      setCompletedTodos(todos1.filter(t => t.completed))
+      setYetCompletedTodos(todos1.filter(t => !t.completed))
+    });
+  }
+  useEffect(updateTodoList, [])
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
+    <>
+    <h2>TodoList</h2>
+    {completedTodos.length + yetCompletedTodos.length < MAX_TODO_COUNT ? <AddTodo addAction={async (data) => {
+      await addTodo(data)
+      await updateTodoList()
+    }}/>: <div>please remove some todos in order to add.</div>}
+    <h3>TODO: </h3>
+    {yetCompletedTodos.length > 0? <TodoList 
+      todos={yetCompletedTodos}
+      changeTodoCompletion={async (
+        {id, completed}:{id: string, completed: boolean}
+      ) => {
+        await changeTodoCompletion({id, completed})
+        await updateTodoList();
+      }}
+      deleteAction={async ( id: string) => {
+        await deleteTodo({id})
+        await updateTodoList();
+      }}
+    />: null}
+    <h3>DONE: </h3>
+    {completedTodos.length > 0? <TodoList 
+      todos={completedTodos}
+      changeTodoCompletion={async (
+        {id, completed}:{id: string, completed: boolean}
+      ) => {
+        await changeTodoCompletion({id, completed})
+        await updateTodoList();
+      }}
+      deleteAction={async ( id: string) => {
+        await deleteTodo({id})
+        await updateTodoList();
+      }}
+    />: null}
+    </>
   )
 }
 

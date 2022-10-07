@@ -1,0 +1,1 @@
+export type Todo = {id: string, detail: string, completed: boolean}
