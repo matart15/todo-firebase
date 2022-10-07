@@ -27,8 +27,9 @@ function App() {
       await addTodo(data)
       await updateTodoList()
     }}/>: <div>please remove some todos in order to add.</div>}
-    <h3>TODO: </h3>
-    {yetCompletedTodos.length > 0? <TodoList 
+    {yetCompletedTodos.length > 0? <>
+      <h3>TODO: </h3>
+      <TodoList 
       todos={yetCompletedTodos}
       changeTodoCompletion={async (
         {id, completed}:{id: string, completed: boolean}
@@ -40,9 +41,11 @@ function App() {
         await deleteTodo({id})
         await updateTodoList();
       }}
-    />: null}
-    <h3>DONE: </h3>
-    {completedTodos.length > 0? <TodoList 
+    /></>: null}
+    
+    {completedTodos.length > 0? <>
+      <h3>DONE: </h3>
+      <TodoList 
       todos={completedTodos}
       changeTodoCompletion={async (
         {id, completed}:{id: string, completed: boolean}
@@ -54,7 +57,7 @@ function App() {
         await deleteTodo({id})
         await updateTodoList();
       }}
-    />: null}
+    /></>: null}
     </>
   )
 }
